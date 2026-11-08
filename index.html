@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>נופית חוגגת 39 - מפה מוסיקלית אינטראקטיבית</title>
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <!-- Google Fonts - Rubik -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Rubik', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #d8ecf8;
+      color: #2c3e50;
+      touch-action: none;
+    }
+
+    #app-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Map Viewport */
+    #map {
+      width: 100%;
+      height: 100%;
+      background: #e6f2f9;
+      z-index: 1;
+    }
+
+    /* Top Floating Header Banner */
+    .top-banner {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 18px;
+      padding: 10px 14px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      animation: slideDown 0.4s ease-out;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .banner-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #1b4332;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .banner-title span.pulse-dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      background: #e63946;
+      border-radius: 50%;
+      box-shadow: 0 0 0 rgba(230, 57, 70, 0.5);
+      animation: livePulse 1.6s infinite;
+    }
+
+    @keyframes livePulse {
+      0% { box-shadow: 0 0 0 0 rgba(230, 57, 70, 0.7); }
+      70% { box-shadow: 0 0 0 8px rgba(230, 57, 70, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(230, 57, 70, 0); }
+    }
+
+    .banner-sub {
+      font-size: 11.5px;
+      color: #555;
+      margin-top: 1px;
+    }
+
+    .btn-list-toggle {
+      background: #2d6a4f;
+      color: #ffffff;
+      border: none;
+      border-radius: 20px;
+      padding: 7px 13px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 2px 8px rgba(45, 106, 79, 0.25);
+      transition: transform 0.15s, background-color 0.15s;
+    }
+
+    .btn-list-toggle:active {
+      transform: scale(0.95);
+      background: #1b4332;
+    }
+
+    /* Custom Leaflet Pulsing Markers */
+    .station-marker-wrap {
+      width: 52px;
+      height: 52px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .pulse-outer {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 48px;
+      height: 48px;
+      margin-top: -24px;
+      margin-left: -24px;
+      border-radius: 50%;
+      background: rgba(255, 183, 3, 0.4);
+      border: 2px solid #ffb703;
+      animation: markerPulse 1.8s ease-out infinite;
+      pointer-events: none;
+    }
+
+    .pulse-outer.has-yt {
+      background: rgba(230, 57, 70, 0.35);
+      border-color: #e63946;
+    }
+
+    @keyframes markerPulse {
+      0% { transform: scale(0.6); opacity: 0.95; }
+      70% { transform: scale(1.35); opacity: 0.1; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+
+    .marker-bubble {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 34px;
+      height: 34px;
+      margin-top: -17px;
+      margin-left: -17px;
+      background: linear-gradient(135deg, #ffd166 0%, #ffb703 100%);
+      border: 2.5px solid #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .marker-bubble.has-yt {
+      background: linear-gradient(135deg, #ff4d6d 0%, #d90429 100%);
+    }
+
+    .marker-bubble svg {
+      width: 18px;
+      height: 18px;
+      fill: #ffffff;
+    }
+
+    .station-marker-wrap:hover .marker-bubble,
+    .station-marker-wrap:active .marker-bubble {
+      transform: scale(1.25);
+    }
+
+    /* Floating Map Tool Controls */
+    .floating-tools {
+      position: absolute;
+      bottom: 24px;
+      left: 16px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .tool-btn {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+      font-size: 19px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.15s, background-color 0.15s;
+    }
+
+    .tool-btn:active {
+      transform: scale(0.92);
+      background: #f1f3f5;
+    }
+
+    /* Mobile Bottom Sheet Modal */
+    .bottom-sheet {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border-radius: 26px 26px 0 0;
+      padding: 14px 20px 24px;
+      box-shadow: 0 -8px 36px rgba(0, 0, 0, 0.25);
+      z-index: 1500;
+      transform: translateY(115%);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .bottom-sheet.open {
+      transform: translateY(0);
+    }
+
+    .sheet-handle-bar {
+      width: 40px;
+      height: 4.5px;
+      background: #d1d5db;
+      border-radius: 10px;
+      margin: 0 auto 12px;
+    }
+
+    .sheet-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .sheet-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #e8f5e9;
+      color: #2d6a4f;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 12px;
+      margin-bottom: 4px;
+    }
+
+    .sheet-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #111827;
+      line-height: 1.25;
+    }
+
+    .btn-close-sheet {
+      background: #f3f4f6;
+      border: none;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      font-size: 17px;
+      color: #4b5563;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+
+    .btn-close-sheet:active {
+      background: #e5e7eb;
+    }
+
+    .sheet-info-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin: 10px 0 16px;
+      font-size: 14px;
+      color: #374151;
+    }
+
+    .info-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-icon {
+      font-size: 16px;
+      width: 22px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .sheet-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .btn-youtube-action {
+      flex: 1;
+      background: #ff0000;
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 16px;
+      padding: 13px 16px;
+      font-size: 15.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 14px rgba(255, 0, 0, 0.35);
+      transition: transform 0.15s, background-color 0.15s;
+    }
+
+    .btn-youtube-action:active {
+      transform: scale(0.97);
+      background: #d90000;
+    }
+
+    .btn-youtube-action svg {
+      width: 22px;
+      height: 22px;
+      fill: #ffffff;
+      flex-shrink: 0;
+    }
+
+    .btn-youtube-action.pending {
+      background: #4b5563;
+      box-shadow: 0 4px 12px rgba(75, 85, 99, 0.25);
+    }
+
+    .btn-recenter-action {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 13px 15px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .btn-recenter-action:active {
+      background: #f3f4f6;
+    }
+
+    /* All Stations Modal Drawer */
+    .stations-modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 2000;
+      display: none;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      align-items: flex-end;
+    }
+
+    .stations-modal-overlay.open {
+      display: flex;
+    }
+
+    .stations-modal {
+      width: 100%;
+      max-height: 82vh;
+      background: #ffffff;
+      border-radius: 26px 26px 0 0;
+      padding: 20px;
+      overflow-y: auto;
+      max-width: 520px;
+      margin: 0 auto;
+      animation: slideUp 0.28s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .modal-head h3 {
+      font-size: 19px;
+      font-weight: 800;
+      color: #1b4332;
+    }
+
+    .station-list-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #f9fafb;
+      border: 1px solid #f3f4f6;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .station-list-row:active {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+
+    .station-item-main h4 {
+      font-size: 15.5px;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .station-item-main p {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+
+    .tag-yt-active {
+      background: #fee2e2;
+      color: #b91c1c;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 5px 9px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tag-yt-pending {
+      background: #f3f4f6;
+      color: #6b7280;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app-container">
+    
+    <!-- Top Floating Header -->
+    <div class="top-banner">
+      <div>
+        <div class="banner-title">
+          <span class="pulse-dot"></span>
+          נופית חוגגת 39 - מוסיקה וטבע
+        </div>
+        <div class="banner-sub">לחצו על אייקון מיקרופון להאזנה לאמנים</div>
+      </div>
+      <button class="btn-list-toggle" id="btnOpenList">
+        <span>🎵</span> כל התחנות
+      </button>
+    </div>
+
+    <!-- Leaflet Map Container -->
+    <div id="map"></div>
+
+    <!-- Floating Navigation Tools -->
+    <div class="floating-tools">
+      <button class="tool-btn" id="btnResetView" title="הצג מפה מלאה">🗺️</button>
+      <button class="tool-btn" id="btnZoomIn" title="התקרב">➕</button>
+      <button class="tool-btn" id="btnZoomOut" title="התרחק">➖</button>
+    </div>
+
+    <!-- Bottom Sheet Card for Selected Station -->
+    <div class="bottom-sheet" id="bottomSheet">
+      <div class="sheet-handle-bar"></div>
+      <div class="sheet-top">
+        <div>
+          <div class="sheet-badge">
+            <span>🎤</span> תחנה מוסיקלית
+          </div>
+          <h2 class="sheet-title" id="sheetTitle">שם התחנה</h2>
+        </div>
+        <button class="btn-close-sheet" id="btnCloseSheet">✕</button>
+      </div>
+
+      <div class="sheet-info-rows">
+        <div class="info-row">
+          <span class="info-icon">📍</span>
+          <span id="sheetLocation">מיקום במסלול</span>
+        </div>
+        <div class="info-row" id="sheetTimeRow">
+          <span class="info-icon">⏰</span>
+          <span id="sheetTime">שעות</span>
+        </div>
+        <div class="info-row">
+          <span class="info-icon">ℹ️</span>
+          <span id="sheetDesc">תיאור</span>
+        </div>
+      </div>
+
+      <div class="sheet-actions">
+        <a href="#" target="_blank" rel="noopener noreferrer" class="btn-youtube-action" id="sheetYtBtn">
+          <svg viewBox="0 0 24 24">
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+          </svg>
+          <span id="sheetYtText">פתיחה ביוטיוב ▶</span>
+        </a>
+        <button class="btn-recenter-action" id="sheetZoomBtn">🔍 מרכז</button>
+      </div>
+    </div>
+
+    <!-- Stations List Modal -->
+    <div class="stations-modal-overlay" id="stationsModalOverlay">
+      <div class="stations-modal">
+        <div class="modal-head">
+          <h3>🎵 תחנות המוסיקה בשביל</h3>
+          <button class="btn-close-sheet" id="btnCloseListModal">✕</button>
+        </div>
+        <div id="stationsListContainer">
+          <!-- Dynamically filled -->
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <script>
+    const IMG_WIDTH = 1264;
+    const IMG_HEIGHT = 898;
+
+    // Station Data with verified exact pixel coordinates
+    const STATIONS = [
+      {
+        id: "taftir",
+        name: "תיאטרון נופי TAFTIR",
+        x: 153,
+        y: 403,
+        location: "מערב השביל, סמוך לשעון שמש",
+        time: "הופעות בשעה 12:30 ו-14:00",
+        description: "תיאטרון נופי מיוחד וחווייתי בלב הטבע",
+        youtube: "https://www.youtube.com/channel/UCGnaI9f5z4Frc6sD6NonoQA",
+        hasOfficialYt: true
+      },
+      {
+        id: "marrakesh",
+        name: "מרקש אקספרס",
+        x: 461,
+        y: 440,
+        location: "דרום-מרכז השביל, ליד עתיקות בית בד",
+        time: "החל מ-10:30",
+        description: "חגיגה מוסיקלית קצבית ומלהיבה",
+        youtube: "https://www.youtube.com/@marrakeshexpress-5748",
+        hasOfficialYt: true
+      },
+      {
+        id: "daniel_rubin",
+        name: "דניאל רובין",
+        x: 565,
+        y: 128,
+        location: "צפון המסלול, ליד מצפור חיפושיות ורחוב הגליל",
+        time: "החל מ-10:30",
+        description: "יוצרת וזמרת עם שירים מקוריים מרגשים",
+        youtube: "https://www.youtube.com/channel/UCZ824A30sE44oDpokVhiGTw",
+        hasOfficialYt: true
+      },
+      {
+        id: "celtic",
+        name: "נבל קלטי וקלרינט",
+        x: 195,
+        y: 119,
+        location: "צפון-מערב המסלול, ליד כלי טחינה עתיקים",
+        time: "החל מ-10:30",
+        description: "צלילי נבל וקלרינט באווירה פסטורלית",
+        youtube: "https://www.youtube.com/results?search_query=%D7%A0%D7%91%D7%9C+%D7%A7%D7%9C%D7%98%D7%99+%D7%95%D7%A7%D7%9C%D7%A8%D7%99%D7%A0%D7%98",
+        hasOfficialYt: false
+      },
+      {
+        id: "templar",
+        name: "Templar",
+        x: 402,
+        y: 130,
+        location: "צפון המסלול, סמוך לספסל צמיגים",
+        time: "החל מ-10:30",
+        description: "הופעה חיה וסוחפת",
+        youtube: "https://www.youtube.com/results?search_query=Templar+%D7%A0%D7%95%D7%A4%D7%99%D7%AA",
+        hasOfficialYt: false
+      },
+      {
+        id: "ruach_yam",
+        name: "רוח ים - חליל ונבל",
+        x: 756,
+        y: 147,
+        location: "מזרח המסלול, סמוך לכניסה הראשית",
+        time: "החל מ-10:30",
+        description: "דואט הרמוני של חליל צד ונבל",
+        youtube: "https://www.youtube.com/results?search_query=%D7%A8%D7%95%D7%97+%D7%99%D7%9D+%D7%97%D7%9C%D7%99%D7%9C+%D7%95%D7%A0%D7%91%D7%9C",
+        hasOfficialYt: false
+      }
+    ];
+
+    // Image Bounds for Leaflet
+    const bounds = [[0, 0], [IMG_HEIGHT, IMG_WIDTH]];
+    // Max panning bounds (allowing a little margin)
+    const maxBounds = [[-150, -150], [IMG_HEIGHT + 150, IMG_WIDTH + 150]];
+
+    const map = L.map('map', {
+      crs: L.CRS.Simple,
+      minZoom: -2.8,
+      maxZoom: 2.0,
+      zoomSnap: 0.1,
+      zoomDelta: 0.4,
+      maxBounds: maxBounds,
+      maxBoundsViscosity: 0.8,
+      attributionControl: false,
+      zoomControl: false,
+      bounceAtZoomLimits: true
+    });
+
+    // Add Image Overlay
+    L.imageOverlay('IMG-20261108-WA0016.jpg', bounds).addTo(map);
+
+    // Initial Fit
+    map.fitBounds(bounds, { padding: [12, 12] });
+
+    // Pixel (x, y from top-left) -> Leaflet LatLng (lat, lng)
+    function pixelToLatLng(x, y) {
+      return L.latLng(IMG_HEIGHT - y, x);
+    }
+
+    const stationMarkers = {};
+    let selectedStation = null;
+
+    // SVG Icons
+    const ytPlaySvg = `
+      <svg viewBox="0 0 24 24">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
+    `;
+    const micSvg = `
+      <svg viewBox="0 0 24 24">
+        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+      </svg>
+    `;
+
+    // Add Station Markers to Map
+    STATIONS.forEach(station => {
+      const latlng = pixelToLatLng(station.x, station.y);
+      const isYt = station.hasOfficialYt;
+
+      const markerHtml = `
+        <div class="station-marker-wrap">
+          <div class="pulse-outer ${isYt ? 'has-yt' : ''}"></div>
+          <div class="marker-bubble ${isYt ? 'has-yt' : ''}" title="${station.name}">
+            ${isYt ? ytPlaySvg : micSvg}
+          </div>
+        </div>
+      `;
+
+      const customIcon = L.divIcon({
+        className: 'custom-station-icon',
+        html: markerHtml,
+        iconSize: [52, 52],
+        iconAnchor: [26, 26]
+      });
+
+      const marker = L.marker(latlng, { icon: customIcon }).addTo(map);
+
+      marker.on('click', (e) => {
+        L.DomEvent.stopPropagation(e);
+        openStationSheet(station);
+      });
+
+      stationMarkers[station.id] = { marker, station, latlng };
+    });
+
+    // Bottom Sheet Elements
+    const bottomSheet = document.getElementById('bottomSheet');
+    const sheetTitle = document.getElementById('sheetTitle');
+    const sheetLocation = document.getElementById('sheetLocation');
+    const sheetTime = document.getElementById('sheetTime');
+    const sheetDesc = document.getElementById('sheetDesc');
+    const sheetYtBtn = document.getElementById('sheetYtBtn');
+    const sheetYtText = document.getElementById('sheetYtText');
+    const sheetZoomBtn = document.getElementById('sheetZoomBtn');
+    const btnCloseSheet = document.getElementById('btnCloseSheet');
+
+    function openStationSheet(station) {
+      selectedStation = station;
+      sheetTitle.textContent = station.name;
+      sheetLocation.textContent = station.location;
+      sheetTime.textContent = station.time;
+      sheetDesc.textContent = station.description;
+
+      sheetYtBtn.href = station.youtube;
+      if (station.hasOfficialYt) {
+        sheetYtText.textContent = "פתיחה בערוץ יוטיוב ▶";
+        sheetYtBtn.classList.remove('pending');
+      } else {
+        sheetYtText.textContent = "חיפוש ביוטיוב (קישור בקרוב) 🔍";
+        sheetYtBtn.classList.add('pending');
+      }
+
+      bottomSheet.classList.add('open');
+
+      // Center map slightly above the marker so bottom sheet doesn't cover it
+      const targetLatLng = pixelToLatLng(station.x, station.y);
+      // Small vertical offset for mobile bottom sheet clearance
+      const offsetLat = targetLatLng.lat - (window.innerWidth < 600 ? 70 : 30);
+      map.flyTo([offsetLat, targetLatLng.lng], Math.max(map.getZoom(), 0.1), { duration: 0.5 });
+    }
+
+    function closeStationSheet() {
+      bottomSheet.classList.remove('open');
+      selectedStation = null;
+    }
+
+    btnCloseSheet.addEventListener('click', closeStationSheet);
+
+    sheetZoomBtn.addEventListener('click', () => {
+      if (selectedStation) {
+        const targetLatLng = pixelToLatLng(selectedStation.x, selectedStation.y);
+        const offsetLat = targetLatLng.lat - (window.innerWidth < 600 ? 60 : 20);
+        map.flyTo([offsetLat, targetLatLng.lng], 0.7, { duration: 0.5 });
+      }
+    });
+
+    // Dismiss bottom sheet when clicking background
+    map.on('click', () => {
+      closeStationSheet();
+    });
+
+    // Floating Tools
+    document.getElementById('btnResetView').addEventListener('click', () => {
+      closeStationSheet();
+      map.flyToBounds(bounds, { padding: [12, 12], duration: 0.5 });
+    });
+    document.getElementById('btnZoomIn').addEventListener('click', () => {
+      map.zoomIn(0.5);
+    });
+    document.getElementById('btnZoomOut').addEventListener('click', () => {
+      map.zoomOut(0.5);
+    });
+
+    // Station List Modal Handlers
+    const stationsModalOverlay = document.getElementById('stationsModalOverlay');
+    const btnOpenList = document.getElementById('btnOpenList');
+    const btnCloseListModal = document.getElementById('btnCloseListModal');
+    const stationsListContainer = document.getElementById('stationsListContainer');
+
+    function renderStationsList() {
+      stationsListContainer.innerHTML = '';
+      STATIONS.forEach(station => {
+        const row = document.createElement('div');
+        row.className = 'station-list-row';
+        row.innerHTML = `
+          <div class="station-item-main">
+            <h4>${station.name}</h4>
+            <p>📍 ${station.location}</p>
+          </div>
+          ${station.hasOfficialYt 
+            ? '<span class="tag-yt-active">▶ ערוץ פעיל</span>' 
+            : '<span class="tag-yt-pending">קישור בקרוב</span>'}
+        `;
+        row.addEventListener('click', () => {
+          stationsModalOverlay.classList.remove('open');
+          openStationSheet(station);
+        });
+        stationsListContainer.appendChild(row);
+      });
+    }
+
+    btnOpenList.addEventListener('click', () => {
+      renderStationsList();
+      stationsModalOverlay.classList.add('open');
+    });
+
+    btnCloseListModal.addEventListener('click', () => {
+      stationsModalOverlay.classList.remove('open');
+    });
+
+    stationsModalOverlay.addEventListener('click', (e) => {
+      if (e.target === stationsModalOverlay) {
+        stationsModalOverlay.classList.remove('open');
+      }
+    });
+  </script>
+</body>
+</html>
