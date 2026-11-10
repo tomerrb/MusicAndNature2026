@@ -723,8 +723,8 @@
         lineup: "רז כרם (נבל), אלעד שפע (קלרינט ואקורדיון)",
         time: "החל מ-10:30",
         description: "צלילי נבל וקלרינט באווירה פסטורלית קסומה",
-        youtube: "https://www.youtube.com/results?search_query=%D7%A0%D7%91%D7%9C+%D7%A7%D7%9C%D7%98%D7%99+%D7%95%D7%A7%D7%9C%D7%A8%D7%99%D7%A0%D7%98",
-        hasOfficialYt: false
+        youtube: "https://youtu.be/W0RzZGvHDEE?si=APqBW8JY9G6fWQ89",
+        hasOfficialYt: true
       },
       {
         id: "ruach_yam",
@@ -735,8 +735,8 @@
         lineup: "שירי ניצני קריסטל (חליל), אולגה מויטליס (נבל)",
         time: "החל מ-10:30",
         description: "אווירה ייחודית וקסומה בצלילי חליל ונבל",
-        youtube: "https://www.youtube.com/results?search_query=%D7%A8%D7%95%D7%97+%D7%99%D7%9D+%D7%97%D7%9C%D7%99%D7%9C+%D7%95%D7%A0%D7%91%D7%9C",
-        hasOfficialYt: false
+        youtube: "https://youtu.be/w-dpLI3Rg0I?si=6alxc2F4apkI6l--",
+        hasOfficialYt: true
       }
     ];
 
@@ -883,7 +883,7 @@
 
       sheetYtBtn.href = station.youtube;
       if (station.hasOfficialYt) {
-        sheetYtText.textContent = "פתיחה בערוץ יוטיוב ▶";
+        sheetYtText.textContent = "פתיחה ביוטיוב ▶";
         sheetYtBtn.classList.remove('pending');
       } else {
         sheetYtText.textContent = "חיפוש ביוטיוב (קישור בקרוב) 🔍";
@@ -949,7 +949,7 @@
             <p style="margin-top:2px; font-size:11px; color:#9ca3af;">📍 ${station.location}</p>
           </div>
           ${station.hasOfficialYt 
-            ? '<span class="tag-yt-active">▶ ערוץ פעיל</span>' 
+            ? '<span class="tag-yt-active">▶ צפה ביוטיוב</span>' 
             : '<span class="tag-yt-pending">קישור בקרוב</span>'}
         `;
         row.addEventListener('click', () => {
