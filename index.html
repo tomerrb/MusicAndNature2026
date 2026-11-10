@@ -384,62 +384,108 @@
 
     .sheet-actions {
       display: flex;
-      gap: 10px;
-      margin-top: 6px;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
     }
 
-    .btn-youtube-action {
+    .media-buttons-row {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .btn-media-action {
       flex: 1;
-      background: #ff0000;
-      color: #ffffff;
       text-decoration: none;
-      border-radius: 16px;
-      padding: 13px 16px;
-      font-size: 15.5px;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 14.5px;
       font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      box-shadow: 0 4px 14px rgba(255, 0, 0, 0.35);
+      gap: 8px;
+      color: #ffffff;
       transition: transform 0.15s, background-color 0.15s;
+      white-space: nowrap;
     }
 
-    .btn-youtube-action:active {
+    .btn-media-action:active {
       transform: scale(0.97);
-      background: #d90000;
     }
 
-    .btn-youtube-action svg {
-      width: 22px;
-      height: 22px;
+    .btn-media-action svg {
+      width: 20px;
+      height: 20px;
       fill: #ffffff;
       flex-shrink: 0;
     }
 
-    .btn-youtube-action.pending {
-      background: #4b5563;
-      box-shadow: 0 4px 12px rgba(75, 85, 99, 0.25);
+    .btn-youtube-action {
+      background: #ff0000;
+      box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
+    }
+
+    .btn-youtube-action:active {
+      background: #d90000;
+    }
+
+    .btn-spotify-action {
+      background: #1db954;
+      box-shadow: 0 4px 12px rgba(29, 185, 84, 0.3);
+    }
+
+    .btn-spotify-action:active {
+      background: #179843;
     }
 
     .btn-recenter-action {
       background: #f9fafb;
       border: 1px solid #e5e7eb;
-      border-radius: 16px;
-      padding: 13px 15px;
-      font-size: 14px;
+      border-radius: 12px;
+      padding: 9px 12px;
+      font-size: 13px;
       font-weight: 600;
-      color: #374151;
+      color: #4b5563;
       cursor: pointer;
       font-family: inherit;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
+      gap: 5px;
+      width: 100%;
+      transition: background 0.15s;
     }
 
     .btn-recenter-action:active {
       background: #f3f4f6;
+    }
+
+    .tags-container {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .tag-spotify-active {
+      background: #d1fae5;
+      color: #065f46;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 7px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      white-space: nowrap;
+    }
+
+    .tag-spotify-active svg {
+      width: 12px;
+      height: 12px;
+      fill: #065f46;
     }
 
     /* All Stations Modal Drawer */
@@ -622,13 +668,21 @@
       </div>
 
       <div class="sheet-actions">
-        <a href="#" target="_blank" rel="noopener noreferrer" class="btn-youtube-action" id="sheetYtBtn">
-          <svg viewBox="0 0 24 24">
-            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-          </svg>
-          <span id="sheetYtText">פתיחה ביוטיוב ▶</span>
-        </a>
-        <button class="btn-recenter-action" id="sheetZoomBtn">🔍 מרכז</button>
+        <div class="media-buttons-row">
+          <a href="#" target="_blank" rel="noopener noreferrer" class="btn-media-action btn-youtube-action" id="sheetYtBtn">
+            <svg viewBox="0 0 24 24">
+              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+            </svg>
+            <span id="sheetYtText">YouTube</span>
+          </a>
+          <a href="#" target="_blank" rel="noopener noreferrer" class="btn-media-action btn-spotify-action" id="sheetSpotifyBtn">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.495 17.306c-.215.352-.676.463-1.028.247-2.817-1.722-6.363-2.112-10.54-1.157-.402.092-.801-.161-.893-.563-.092-.402.161-.801.563-.893 4.576-1.045 8.492-.596 11.65 1.338.353.216.464.676.248 1.028zm1.467-3.262c-.27.44-.847.578-1.287.308-3.225-1.982-8.14-2.557-11.954-1.399-.494.15-1.02-.133-1.17-.627-.15-.494.133-1.02.627-1.17 4.364-1.324 9.791-.685 13.476 1.58.44.27.578.847.308 1.288zm.126-3.41c-3.868-2.296-10.248-2.508-13.941-1.387-.593.18-1.223-.155-1.403-.748-.18-.593.155-1.223.748-1.403 4.25-1.29 11.295-1.039 15.753 1.608.533.316.708 1.008.392 1.541-.316.533-1.008.708-1.549.39z"/>
+            </svg>
+            <span>Spotify</span>
+          </a>
+        </div>
+        <button class="btn-recenter-action" id="sheetZoomBtn">🔍 התמקד במפה</button>
       </div>
     </div>
 
@@ -676,6 +730,7 @@
         time: "החל מ-10:30",
         description: "דואו פלמנקו - ג'אז עכשווי סוחף ומיוחד",
         youtube: "https://www.youtube.com/channel/UCxa5Yzzlt_JqO8cWa2TwBNA",
+        spotify: null,
         hasOfficialYt: true
       },
       {
@@ -688,6 +743,7 @@
         time: "הופעות בשעה 12:30 ו-14:00",
         description: "מסע מדברי מהפנט בין מסורת לרוקנרול בתיאטרון הנופי בלב הטבע",
         youtube: "https://www.youtube.com/channel/UCGnaI9f5z4Frc6sD6NonoQA",
+        spotify: "https://open.spotify.com/artist/5oVL5BRMnqEicvj8gqbgGg?si=GS9iOv_YS7SLBbSN_1050g&utm_source=copy-link",
         hasOfficialYt: true
       },
       {
@@ -700,6 +756,7 @@
         time: "החל מ-10:30",
         description: "מוסיקה מרוקאית, צפון אפריקאית ואנדלוסית בעיבודים עכשוויים",
         youtube: "https://www.youtube.com/@marrakeshexpress-5748",
+        spotify: "https://open.spotify.com/artist/7ImcLF2hrB3Fm46Mqvo3iB?si=DcaEGZtTR-O6AAB7e6RmOQ&utm_source=copy-link",
         hasOfficialYt: true
       },
       {
@@ -712,6 +769,7 @@
         time: "החל מ-10:30",
         description: "זמרת ויוצרת ישראלית, שירים מקוריים מרגשים",
         youtube: "https://www.youtube.com/channel/UCZ824A30sE44oDpokVhiGTw",
+        spotify: "https://open.spotify.com/artist/077agqIDRCxkgjNgA0v1pB?si=ziWamJjUSXepO4tjn4GtWQ&utm_source=copy-link",
         hasOfficialYt: true
       },
       {
@@ -724,6 +782,7 @@
         time: "החל מ-10:30",
         description: "צלילי נבל וקלרינט באווירה פסטורלית קסומה",
         youtube: "https://youtu.be/W0RzZGvHDEE?si=APqBW8JY9G6fWQ89",
+        spotify: null,
         hasOfficialYt: true
       },
       {
@@ -736,6 +795,7 @@
         time: "החל מ-10:30",
         description: "אווירה ייחודית וקסומה בצלילי חליל ונבל",
         youtube: "https://youtu.be/w-dpLI3Rg0I?si=6alxc2F4apkI6l--",
+        spotify: null,
         hasOfficialYt: true
       }
     ];
@@ -869,6 +929,7 @@
     const sheetDesc = document.getElementById('sheetDesc');
     const sheetYtBtn = document.getElementById('sheetYtBtn');
     const sheetYtText = document.getElementById('sheetYtText');
+    const sheetSpotifyBtn = document.getElementById('sheetSpotifyBtn');
     const sheetZoomBtn = document.getElementById('sheetZoomBtn');
     const btnCloseSheet = document.getElementById('btnCloseSheet');
     let selectedStation = null;
@@ -882,12 +943,13 @@
       sheetDesc.textContent = station.description;
 
       sheetYtBtn.href = station.youtube;
-      if (station.hasOfficialYt) {
-        sheetYtText.textContent = "פתיחה ביוטיוב ▶";
-        sheetYtBtn.classList.remove('pending');
+      sheetYtText.textContent = "YouTube ▶";
+
+      if (station.spotify) {
+        sheetSpotifyBtn.href = station.spotify;
+        sheetSpotifyBtn.style.display = 'flex';
       } else {
-        sheetYtText.textContent = "חיפוש ביוטיוב (קישור בקרוב) 🔍";
-        sheetYtBtn.classList.add('pending');
+        sheetSpotifyBtn.style.display = 'none';
       }
 
       bottomSheet.classList.add('open');
@@ -942,15 +1004,23 @@
       STATIONS.forEach(station => {
         const row = document.createElement('div');
         row.className = 'station-list-row';
+        const spotifyBadge = station.spotify 
+          ? `<span class="tag-spotify-active">
+              <svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.495 17.306c-.215.352-.676.463-1.028.247-2.817-1.722-6.363-2.112-10.54-1.157-.402.092-.801-.161-.893-.563-.092-.402.161-.801.563-.893 4.576-1.045 8.492-.596 11.65 1.338.353.216.464.676.248 1.028zm1.467-3.262c-.27.44-.847.578-1.287.308-3.225-1.982-8.14-2.557-11.954-1.399-.494.15-1.02-.133-1.17-.627-.15-.494.133-1.02.627-1.17 4.364-1.324 9.791-.685 13.476 1.58.44.27.578.847.308 1.288zm.126-3.41c-3.868-2.296-10.248-2.508-13.941-1.387-.593.18-1.223-.155-1.403-.748-.18-.593.155-1.223.748-1.403 4.25-1.29 11.295-1.039 15.753 1.608.533.316.708 1.008.392 1.541-.316.533-1.008.708-1.549.39z"/></svg>
+              Spotify
+            </span>` 
+          : '';
+
         row.innerHTML = `
           <div class="station-item-main">
             <h4>${station.name}</h4>
             <p>👥 ${station.lineup}</p>
             <p style="margin-top:2px; font-size:11px; color:#9ca3af;">📍 ${station.location}</p>
           </div>
-          ${station.hasOfficialYt 
-            ? '<span class="tag-yt-active">▶ צפה ביוטיוב</span>' 
-            : '<span class="tag-yt-pending">קישור בקרוב</span>'}
+          <div class="tags-container">
+            ${spotifyBadge}
+            <span class="tag-yt-active">▶ YouTube</span>
+          </div>
         `;
         row.addEventListener('click', () => {
           stationsModalOverlay.classList.remove('open');
