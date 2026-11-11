@@ -16,3 +16,8 @@
 4. **דניאל רובין** - זמרת ויוצרת ישראלית | [YouTube](https://www.youtube.com/channel/UCZ824A30sE44oDpokVhiGTw) • [Spotify](https://open.spotify.com/artist/077agqIDRCxkgjNgA0v1pB?si=ziWamJjUSXepO4tjn4GtWQ&utm_source=copy-link)
 5. **נבל וקלרינט** - צלילי נבל וקלרינט פסטורליים (רז כרם ואלעד שפע) | [סרטון YouTube](https://youtu.be/W0RzZGvHDEE?si=APqBW8JY9G6fWQ89)
 6. **רוח ים** - צלילי חליל ונבל קסומים (שירי ניצני קריסטל ואולגה מויטליס) | [סרטון YouTube](https://youtu.be/w-dpLI3Rg0I?si=6alxc2F4apkI6l--)
+
+## 🌿 פעילויות סביבתיות (נקודות ירוקות לאורך המסלול)
+1. **חנוכת מבואת נחל ציפורי** (סדנאות יצירה חימר וצמר, תכנון ושיקום) | [רשות ניקוז ונחלים קישון](https://www.rnkishon.co.il) • [רשות נחל הקישון](https://kishon.org.il)
+2. **היכרות עם הנשרים וצפרות** (מגדירי ציפורים, משקפות, תצפית נוף) | [החברה להגנת הטבע](https://www.teva.org.il) • [רשות הטבע והגנים](https://www.parks.org.il)
+3. **נחל הקישון ויצירה מהטבע** (מגוון ביולוגי, סדנאות מחומרים מהטבע) | [רשות נחל הקישון](https://kishon.org.il) • [החברה להגנת הטבע](https://www.teva.org.il)
